@@ -40,7 +40,11 @@ void _createWebSplash({
       brandingDarkImagePath == null &&
       backgroundImage == null &&
       darkBackgroundImage == null) {
-    Directory splashFolder = Directory(_webSplashFolder);
+    String folderWeb = _webSplashFolder;
+    if (module != null && module.isNotEmpty) {
+      folderWeb = '../$module/$_webSplashFolder';
+    }
+    Directory splashFolder = Directory(folderWeb);
     if (splashFolder.existsSync()) splashFolder.deleteSync(recursive: true);
     final webIndex = File(folderWeb);
     final document = html_parser.parse(webIndex.readAsStringSync());
@@ -168,6 +172,7 @@ void _createWebSplash({
   _createBackgroundImages(
     backgroundImage: backgroundImage,
     darkBackgroundImage: darkBackgroundImage,
+    module: module,
   );
   _createSplashCss(
     color: color,
@@ -177,7 +182,7 @@ void _createWebSplash({
     hasDarkImage: darkBackgroundImage != null,
     module: module,
   );
-  _createSplashJs();
+  _createSplashJs(module: module);
   _updateHtml(
     imageMode: imageMode,
     imagePath: imagePath,
@@ -190,6 +195,7 @@ void _createWebSplash({
 void _createBackgroundImages({
   required String? backgroundImage,
   required String? darkBackgroundImage,
+  required String? module,
 }) {
   print('[Web] Creating background images');
 
@@ -198,6 +204,7 @@ void _createBackgroundImages({
   _createBackgroundImage(
     backgroundImage: backgroundImage,
     fileName: "light-background.$bgExtension",
+    module: module,
   );
 
   final darkBgExtension =
@@ -205,14 +212,20 @@ void _createBackgroundImages({
   _createBackgroundImage(
     backgroundImage: darkBackgroundImage,
     fileName: "dark-background.$darkBgExtension",
+    module: module,
   );
 }
 
 void _createBackgroundImage({
   required String? backgroundImage,
   required String fileName,
+  required String? module,
 }) {
-  final backgroundDestination = '$_webSplashImagesFolder$fileName';
+  String folderWeb = _webSplashImagesFolder;
+  if (module != null && module.isNotEmpty) {
+    folderWeb = '../$module/$_webSplashImagesFolder';
+  }
+  final backgroundDestination = '$folderWeb$fileName';
   if (backgroundImage == null) {
     final file = File(backgroundDestination);
     if (file.existsSync()) file.deleteSync();
@@ -337,9 +350,13 @@ void _createSplashCss({
   webIndex.writeAsStringSync(document.outerHtml);
 }
 
-void _createSplashJs() {
+void _createSplashJs({required String? module}) {
   // Add js as an inline script in head tag
-  final webIndex = File(_webIndex);
+  String folderWeb = _webIndex;
+  if (module != null && module.isNotEmpty) {
+    folderWeb = '../$module/$_webIndex';
+  }
+  final webIndex = File(folderWeb);
   final document = html_parser.parse(webIndex.readAsStringSync());
 
   // Update splash js script tag
